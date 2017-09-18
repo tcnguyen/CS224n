@@ -116,14 +116,14 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     z = sigmoid(np.dot(U[target], v))
 
     cost += -np.log(z)
-    grad[target] = (z-1)*predicted
+    grad[target] += (z-1)*predicted
     gradPred += (z-1)*U[target]
 
     for i in range(1,K+1):
         k =  indices[i]
         z = sigmoid(-np.dot(U[k], v))
         cost += -np.log(z)
-        grad[k] = -(z - 1)*predicted
+        grad[k] += -(z - 1)*predicted
         gradPred += -(z-1)*U[k]
     ### END YOUR CODE
 
@@ -192,7 +192,13 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    #raise NotImplementedError
+    predicted_indices = [tokens[word] for word in contextWords]
+    predicted_vectors = inputVectors[predicted_indices]
+    predicted = np.sum(predicted_vectors, axis=0)
+    target = tokens[currentWord]
+    cost, gradIn_predicted, gradOut = word2vecCostAndGradient(predicted, target, outputVectors, dataset)
+    for i in predicted_indices:
+        gradIn[i] += gradIn_predicted #predicted indices may have repeated words, so += is necessary
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
